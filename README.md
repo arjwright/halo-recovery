@@ -18,6 +18,8 @@ Writing a HUD replaces main.lua on the glasses. Diagnostic tests may interrupt t
 
 The browser communicates directly with the connected device. This project does not send device data to a server.
 
+If a browser BLE send fails during a file write or diagnostic, the remaining steps stop and the page reports an error. Web Bluetooth's write-without-response operation does not confirm that Halo executed a command or persisted a file.
+
 ## License
 
 GPL-3.0. See LICENSE.
