@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ee">
+  <meta name="description" content="A browser-based recovery and diagnostic tool for Brilliant Labs Halo glasses.">
+  <title>Halo Recovery</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css?v=1.0.0">
+</head>
+<body>
+  <main class="card halo-app">
+    <header class="identity">
+      <p class="eyebrow">Brilliant Labs Halo</p>
+      <h1>Halo Recovery</h1>
+      <p class="tagline">Connect, recover a stuck device, or write a simple HUD.</p>
+      <p class="status" id="haloStatus" role="status" aria-live="polite"></p>
+    </header>
+    <section class="section" aria-labelledby="connect-title">
+      <h2 id="connect-title">Connection</h2>
+      <div class="halo-row">
+        <button class="btn primary" id="haloConnect" type="button">Connect Halo</button>
+        <button class="btn primary" id="haloRecover" type="button" title="Send break, then reset">Recover stuck Halo</button>
+      </div>
+      <p class="subtle">Connect first. Recovery sends the standard break and reset signals.</p>
+    </section>
+    <section class="section" aria-labelledby="dashboard-title">
+      <h2 id="dashboard-title">Write a HUD</h2>
+      <div class="halo-row halo-primary-actions">
+        <button class="btn primary" id="haloWriteMain" type="button">Write Recovery HUD</button>
+        <button class="btn" id="haloWriteDashboard" type="button">Write Static Dashboard</button>
+      </div>
+      <p class="subtle">Each action overwrites <code>main.lua</code> on the glasses and asks before writing.</p>
+    </section>
+    <details class="section">
+      <summary>Diagnostics</summary>
+      <div class="halo-row">
+        <button class="btn" id="haloDraw" type="button">Draw Test</button>
+        <button class="btn" id="haloSoundTest" type="button">Sound Test</button>
+        <button class="btn" id="haloMicTest" type="button">Mic Test</button>
+        <button class="btn" id="haloCameraTest" type="button">Camera Test</button>
+      </div>
+      <p class="subtle">Tests may interrupt the current HUD. Run a dashboard action or reset afterward to restore it.</p>
+    </details>
+    <details class="section advanced">
+      <summary>Individual recovery commands</summary>
+      <div class="halo-row">
+        <button class="btn" id="haloBreak" type="button" title="Interrupt the running script">Break</button>
+        <button class="btn" id="haloReset" type="button" title="Restart the Lua runtime">Reset</button>
+        <button class="btn" id="haloReboot" type="button" title="Reboot the device">Reboot</button>
+      </div>
+      <div class="halo-row">
+        <button class="btn ghost" id="haloRemove" type="button">Remove main.lua</button>
+        <button class="btn danger" id="haloWipe" type="button">Wipe files</button>
+      </div>
+      <p class="subtle">Wipe removes Lua files from the glasses while preserving device settings. Confirm prompts are shown before destructive actions.</p>
+    </details>
+    <footer class="footnote">
+      Works in Chrome, Edge, and Opera on desktop and Android. Web Bluetooth is not supported by iOS Safari. This page writes directly to the connected glasses; it does not send device data to a server.
+    </footer>
+  </main>
+  <script src="halo.js?v=1.0.0" defer></script>
+  <script src="halo-provision.js?v=1.0.0" defer></script>
+</body>
+</html>
