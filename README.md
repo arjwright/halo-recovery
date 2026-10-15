@@ -18,7 +18,18 @@ Writing a HUD replaces main.lua on the glasses. Diagnostic tests may interrupt t
 
 The browser communicates directly with the connected device. This project does not send device data to a server.
 
-If a browser BLE send fails during a file write or diagnostic, the remaining steps stop and the page reports an error. Web Bluetooth's write-without-response operation does not confirm that Halo executed a command or persisted a file.
+### How to Use This
+
+- Download all of the files of this repo onto a computer (that you have paired Halo to) or web server
+- Open your web browser. This MUST be either Chrome or a Chromium-based browser. Safari/Safari Mobile does not work for this
+- Open the index.html page in your browser
+- Click the Connect button to bring up the menu to connect to your Halo (your Halo will have a ‘Halo ##’ name)
+- Then click the buttons on the page to run the tests
+
+### Notes
+
+- There are no analytics whatsoever to this; everything happens in your browser ONLY
+- The Camera Test takes an immediate shot of whatever you are looking at, and saves it only to your browser’s web storage (nothing goes to any cloud service)
 
 ## License
 
