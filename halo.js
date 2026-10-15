@@ -357,11 +357,15 @@ async function haloRecover() {
       'info'
     );
 
-    await haloSignal(SIG.brk);
+    if (!await haloSignal(SIG.brk)) {
+      throw new Error('Break signal failed; reset was skipped.');
+    }
 
     await delay(300);
 
-    await haloSignal(SIG.reset);
+    if (!await haloSignal(SIG.reset)) {
+      throw new Error('Reset signal failed.');
+    }
 
     hSetStatus(
       'Recovery sent (break -> reset)',
@@ -411,11 +415,15 @@ async function haloRemoveMain() {
       'info'
     );
 
-    await haloSignal(SIG.brk);
+    if (!await haloSignal(SIG.brk)) {
+      throw new Error('Break signal failed; removal was skipped.');
+    }
 
     await delay(300);
 
-    await haloSignal(SIG.removeMain);
+    if (!await haloSignal(SIG.removeMain)) {
+      throw new Error('Remove main.lua signal failed.');
+    }
 
     hSetStatus(
       'Sent break -> remove main.lua',
@@ -466,14 +474,18 @@ async function haloWipe() {
       'info'
     );
 
-    await haloSignal(SIG.brk);
+    if (!await haloSignal(SIG.brk)) {
+      throw new Error('Break signal failed; wipe was skipped.');
+    }
 
     await delay(300);
 
-    await haloSignal(SIG.wipeFiles);
+    if (!await haloSignal(SIG.wipeFiles)) {
+      throw new Error('Wipe signal failed.');
+    }
 
     hSetStatus(
-      'Files wiped (settings kept)',
+      'Wipe command sent (settings kept)',
       'success'
     );
 
@@ -496,6 +508,8 @@ async function haloWipe() {
 // Sends raw UTF-8 Lua text followed by newline.
 //
 // This is ONLY called by explicit buttons.
+// A true result means the browser BLE write completed; it does not confirm
+// that Halo executed the command or persisted the file.
 // ============================================================
 
 async function sendLua(line) {
@@ -708,9 +722,12 @@ async function haloWriteRecoveryMain() {
 
 
     // Open file.
-    await sendLua(
+    const opened = await sendLua(
       "f = frame.file.open('main.lua', 'w')"
     );
+    if (!opened) {
+      throw new Error('Could not send file-open command; write stopped.');
+    }
 
 
     // Write in manageable chunks.
@@ -723,30 +740,40 @@ async function haloWriteRecoveryMain() {
       const chunk =
         script.slice(i, i + 180);
 
-      await sendLua(
+      const sent = await sendLua(
         'f:write("' +
         luaEscape(chunk) +
         '")'
       );
+      if (!sent) {
+        throw new Error(
+          'Could not send recovery HUD chunk ' +
+          (Math.floor(i / 180) + 1) +
+          '; the file may be incomplete and reset was skipped.'
+        );
+      }
     }
 
 
     // Close file.
-    await sendLua(
+    const closed = await sendLua(
       "f:close()"
     );
+    if (!closed) {
+      throw new Error('Could not send file-close command; reset was skipped.');
+    }
 
     await delay(150);
 
 
     // Reset so main.lua runs.
-    await haloSignal(
-      SIG.reset
-    );
+    if (!await haloSignal(SIG.reset)) {
+      throw new Error('Recovery HUD was sent, but reset failed; it may not be running.');
+    }
 
 
     hSetStatus(
-      'Wrote main.lua and reset',
+      'Recovery HUD sent; reset requested',
       'success'
     );
 
@@ -953,13 +980,13 @@ async function haloWriteDashboard() {
     );
 
 
-    await haloSignal(
-      SIG.reset
-    );
+    if (!await haloSignal(SIG.reset)) {
+      throw new Error('Dashboard was sent, but reset failed; it may not be running.');
+    }
 
 
     hSetStatus(
-      'Dashboard written and reset',
+      'Dashboard sent; reset requested',
       'success'
     );
 
