@@ -1,2 +1,23 @@
-# halo-recovery
-Halo Recovery is a fork of a web app I’ve developed to help address connection issues with unresponsive [Brilliant Labs’ Halo glasses](https://docs.brilliant.xyz/halo/halo/). This is based on their published SDK.
+# Halo Recovery
+
+A standalone browser-based recovery and diagnostics tool for Brilliant Labs Halo glasses, based on the published Halo SDK and firmware protocol.
+
+## What it does
+
+- Connects to Halo over Web Bluetooth.
+- Sends recovery signals for a stuck device.
+- Writes a recovery HUD or a simple static dashboard to main.lua.
+- Provides display, sound, microphone, and camera diagnostics.
+- Offers individual recovery commands, including removal or wiping of Lua files.
+
+## Use
+
+Serve this repository over HTTPS (or use localhost for development), open index.html in a supported browser, and connect the glasses. Web Bluetooth is supported in Chrome, Edge, and Opera on desktop and Android; it is not supported by iOS Safari.
+
+Writing a HUD replaces main.lua on the glasses. Diagnostic tests may interrupt the current script. The Wipe action removes Lua files while preserving device settings; read the confirmation before proceeding.
+
+The browser communicates directly with the connected device. This project does not send device data to a server.
+
+## License
+
+GPL-3.0. See LICENSE.
