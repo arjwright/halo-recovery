@@ -23,14 +23,31 @@ function pLuaEscape(s) {
 // Generic file writer: open -> chunked write -> close (<=180 to stay
 // well under the 512 MTU). Reuses halo.js sendLua().
 async function writeFile(name, contents) {
-  if (!pReady()) return;
+  if (!pReady()) return false;
   const body = contents.endsWith('\n') ? contents : contents + '\n';
-  await sendLua("f = frame.file.open('" + name + "', 'w')");
-  for (let i = 0; i < body.length; i += 180) {
-    await sendLua('f:write("' + pLuaEscape(body.slice(i, i + 180)) + '")');
+  const opened = await sendLua("f = frame.file.open('" + name + "', 'w')");
+  if (!opened) {
+    hSetStatus('Write stopped before opening ' + name + '.', 'error');
+    return false;
   }
-  await sendLua("f:close()");
+  for (let i = 0; i < body.length; i += 180) {
+    const sent = await sendLua('f:write("' + pLuaEscape(body.slice(i, i + 180)) + '")');
+    if (!sent) {
+      hSetStatus(
+        'Write stopped at chunk ' + (Math.floor(i / 180) + 1) +
+        ' of ' + name + '; the file may be incomplete. No further commands were sent.',
+        'error'
+      );
+      return false;
+    }
+  }
+  const closed = await sendLua("f:close()");
+  if (!closed) {
+    hSetStatus('Write incomplete: could not close ' + name + '.', 'error');
+    return false;
+  }
   await delay(120);
+  return true;
 }
 
 
@@ -39,9 +56,13 @@ async function writeFile(name, contents) {
 // incoming Lua until it receives a break - this sends that break first.
 async function interruptRunningApp() {
   if (typeof haloSignal === 'function' && typeof SIG !== 'undefined') {
-    await haloSignal(SIG.brk); // 0x03
+    if (!await haloSignal(SIG.brk)) {
+      hSetStatus('Could not send break; diagnostic was stopped before writing.', 'error');
+      return false;
+    }
     await delay(300);
   }
+  return true;
 }
 
 
@@ -119,9 +140,12 @@ function buildMicTestLua() {
 async function haloSoundTest() {
   if (!pReady()) return;
   hSetStatus('Sound Test: playing blip, rising 5 -> 50...', 'info');
-  await interruptRunningApp();                 // free the REPL from the dashboard loop
-  await writeFile('soundtest.lua', buildSoundTestLua());
-  await sendLua("require('soundtest')");       // 0.8.12 re-runs require fresh each call
+  if (!await interruptRunningApp()) return;   // free the REPL from the dashboard loop
+  if (!await writeFile('soundtest.lua', buildSoundTestLua())) return;
+  if (!await sendLua("require('soundtest')")) {
+    hSetStatus('Sound Test file was written, but its start command failed.', 'error');
+    return;
+  }
   await delay(2500);                           // ~ length of the 5-step ramp
   hSetStatus('Sound Test done. Hear it? Press Reset or write a dashboard again to restore the display.', 'success');
 }
@@ -131,9 +155,12 @@ async function haloSoundTest() {
 async function haloMicTest() {
   if (!pReady()) return;
   hSetStatus('Mic Test: listening ~4s - watch the level meter on the HUD...', 'info');
-  await interruptRunningApp();
-  await writeFile('mictest.lua', buildMicTestLua());
-  await sendLua("require('mictest')");
+  if (!await interruptRunningApp()) return;
+  if (!await writeFile('mictest.lua', buildMicTestLua())) return;
+  if (!await sendLua("require('mictest')")) {
+    hSetStatus('Mic Test file was written, but its start command failed.', 'error');
+    return;
+  }
   await delay(4500);                           // ~4s meter loop + settle
   hSetStatus('Mic Test done. Peak is on the HUD. Press Reset or write a dashboard again to restore the display.', 'success');
 }
@@ -292,9 +319,19 @@ async function haloCameraTest() {
   var myId = ++camCaptureId;
   camState = { chunks: [], bytes: 0 };          // listener is now live
   hSetStatus('Camera Test: capturing and streaming the JPEG (a few seconds)...', 'info');
-  await interruptRunningApp();                   // free the REPL from the dashboard loop
-  await writeFile('camtest.lua', buildCameraTestLua());
-  await sendLua("require('camtest')");           // capture + stream; IMG_END finalizes
+  if (!await interruptRunningApp()) {
+    camState = null;
+    return;
+  }                                                // free the REPL from the dashboard loop
+  if (!await writeFile('camtest.lua', buildCameraTestLua())) {
+    camState = null;
+    return;
+  }
+  if (!await sendLua("require('camtest')")) {    // capture + stream; IMG_END finalizes
+    camState = null;
+    hSetStatus('Camera Test file was written, but its start command failed.', 'error');
+    return;
+  }
   setTimeout(function () {
     if (camState && myId === camCaptureId) {
       camState = null;
