@@ -1,0 +1,221 @@
+body {
+    animation: fadeIn .4s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px) scale(1.01);
+  }  
+  
+  .btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.08);
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  
+  .btn:active::after {
+    opacity: 1;
+  }  
+
+:root {
+    --bg: #f4f3ee;
+    --fg: #171613;
+    --muted: #a0a0a0;
+    --accent: #9e8255;
+    --border: transparent; /* #222 */
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  
+  .card {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    max-width: 520px;
+    margin: auto;
+  }
+  
+  .identity h1 {
+    font-size: 2rem;
+	margin: -125px 0 .5rem 125px;
+    /* background:transparent url(https://antoinerjwright.com/images/arjw-logo-bluewhite.jpg) 0 0 no-repeat; */
+    background-size: 85px 85px;
+    padding-top:10px;
+    color:#374c5b;
+  }
+  
+  .identity-mark {
+	  width: 100px;
+	  margin-bottom: .5rem;
+	}
+	
+  .identity-mark object {
+	  width: 100%;
+	  height: auto;
+	  display: block;
+	}
+
+  
+  .tagline {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--muted);
+	margin: 0 0 0 125px;
+  }
+  
+  .status {
+    margin-top: .75rem;
+    font-size: 1rem;
+	font-weight:700;
+    color: var(--accent);
+  }
+  
+  .actions {
+    margin-top: 2rem;
+    display: grid;
+    gap: .75rem;
+  }
+  
+  .btn, .btn:visited {
+    text-decoration: none;
+    padding: .85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    text-align: center;
+    color: var(--fg);
+    transition: transform .15s ease, background .15s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-1px);
+    background: #9fabb3;
+  }
+  
+  .primary {
+    background: var(--accent);
+    color: var(--bg);
+	font-weight:700;
+    border: none;
+  }
+  
+  .ghost {
+    background: transparent;
+    border-style: none;
+  }
+  
+  body.offline .schedule-btn {
+    opacity: .4;
+    pointer-events: none;
+  }
+  .subtle {
+    opacity: .75;
+    font-size: .9rem;
+  }
+  
+  .subtle:hover {
+    opacity: 1;
+  }
+  .panel {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: auto;
+    background: rgba(0,0,0, .6);
+    display: none;
+    align-items: flex-end;
+  }
+  
+  .panel.open {
+    display: flex;
+  }
+  
+  .panel-inner {
+    background: #F1F1F1;
+    padding: 1.5rem;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    animation: slideUp .3s ease;
+  }
+
+  div.panel-inner button.ghost {
+    margin-left:1em;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+#pipPanel,
+#save-panel {
+  display: none;
+}
+
+.panel.hidden { display: none; }
+
+#pipPanel.open,
+#save-panel.open {
+  display: block;
+}
+button {
+  font-size: 1rem;
+}
+
+#save-form input {
+	height:2rem;
+}
+/* Subtle hint that logo is interactive */
+.wearable-enabled {
+  position: relative;
+  cursor: pointer;
+}
+
+.wearable-hint {
+  position: absolute;
+  bottom: -20px;
+  right: 0;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.wearable-enabled:hover .wearable-hint {
+  opacity: 1;
+}
+
+/* Or even more subtle - only show on devices that support Web Bluetooth */
+@media (hover: hover) {
+  .wearable-hint {
+    display: block;
+  }
+}
+
+@media (hover: none) {
+  .wearable-hint {
+    display: none;
+  }
+}
