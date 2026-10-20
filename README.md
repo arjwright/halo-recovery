@@ -2,6 +2,8 @@
 
 A standalone browser-based recovery and diagnostics tool for Brilliant Labs Halo glasses, based on the published Halo SDK and firmware protocol.
 
+![screenshot of Halo Recovery](https://github.com/arjwright/halo-recovery/blob/c6d05f3521c5e35ecf7531847bf9e6f5a9a5774a/image0.jpeg)
+
 ## What it does
 
 - Connects to Halo over Web Bluetooth.
